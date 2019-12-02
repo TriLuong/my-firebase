@@ -21,3 +21,7 @@ export function respondSuccess(res: Response, data: object) {
 
   return res.status(code).json(data);
 }
+
+export function respondError(res: Response, code: number, message: string) {
+  return res.status(code).send(message);
+}

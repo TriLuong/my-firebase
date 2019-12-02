@@ -1,7 +1,8 @@
 import * as admin from "firebase-admin";
 import * as _ from "lodash";
 import { Request, Response } from "express";
-import { respondSuccess, handleError } from "../common/common";
+import * as httpStatusCode from "http-status-codes";
+import { respondSuccess, respondError, handleError } from "../common/common";
 import { usersCollection } from "../common/collections";
 import { IUser } from "../models/user.model";
 
@@ -65,7 +66,7 @@ export async function all(req: Request, res: Response) {
 
     const users: any = userDoc.docs
       .slice(startIndex, endIndex)
-      .map(d => d.data());
+      .map(d => transformUserToEndUser(d));
 
     totalItem = userDoc.docs.length;
     totalPage = Math.ceil(totalItem / pageSize) || 1;
@@ -158,4 +159,88 @@ export async function create(req: Request, res: Response) {
   }
 }
 
-export default { all, create };
+export async function update(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    const ref = usersCollection().doc(id);
+
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "User not exists");
+    }
+
+    const {
+      name,
+      password,
+      email,
+      role,
+      available,
+      truck,
+      notes,
+      phone,
+      deviceToken,
+      devicePlatform,
+      truckNumber,
+      longitude,
+      latitude,
+      address,
+      timezone
+    } = req.body;
+
+    await admin.auth().updateUser(id, {
+      displayName: name,
+      password,
+      email,
+      phoneNumber: phone
+    });
+
+    await admin.auth().setCustomUserClaims(id, { role });
+
+    const payload: IUser = {
+      name,
+      email,
+      role,
+      available,
+      truck,
+      notes,
+      phone,
+      deviceToken,
+      devicePlatform,
+      truckNumber,
+      longitude,
+      latitude,
+      address,
+      timezone
+    };
+
+    // @ts-ignore
+    Object.keys(user).forEach(k => _.isUndefined(user[k]) && delete user[k]);
+
+    await ref.update(payload);
+
+    const updatedUser = await transformUser(ref);
+
+    return respondSuccess(res, updatedUser);
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export async function get(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const ref = usersCollection().doc(id);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "User not exists");
+    }
+    const users = await transformUserToEndUser(snapshot);
+    return respondSuccess(res, users);
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export default { all, create, update, get };
