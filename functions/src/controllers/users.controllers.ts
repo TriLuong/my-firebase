@@ -198,7 +198,7 @@ export async function update(req: Request, res: Response) {
 
     await admin.auth().setCustomUserClaims(id, { role });
 
-    const payload: IUser = {
+    const user: IUser = {
       name,
       email,
       role,
@@ -218,7 +218,7 @@ export async function update(req: Request, res: Response) {
     // @ts-ignore
     Object.keys(user).forEach(k => _.isUndefined(user[k]) && delete user[k]);
 
-    await ref.update(payload);
+    await ref.update(user);
 
     const updatedUser = await transformUser(ref);
 
