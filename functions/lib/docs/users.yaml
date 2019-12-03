@@ -31,29 +31,29 @@ paths:
       summary: Get all users
       produces:
         - application/json
-      parameters:
-        - in: query
-          name: size
-          description: Size of page
-          required: false
-          type: number
-          default: 20
-        - in: query
-          name: page
-          description: Page index
-          required: false
-          type: number
-          default: 1
-        - in: query
-          name: role
-          description: Role's user
-          required: false
-          type: string
-          enum:
-            - Driver
-            - Rep
-            - Truck
-            - Ddmin
+      # parameters:
+      #   - in: query
+      #     name: size
+      #     description: Size of page
+      #     required: false
+      #     type: number
+      #     default: 20
+      #   - in: query
+      #     name: page
+      #     description: Page index
+      #     required: false
+      #     type: number
+      #     default: 1
+      #   - in: query
+      #     name: role
+      #     description: Role's user
+      #     required: false
+      #     type: string
+      #     enum:
+      #       - Driver
+      #       - Rep
+      #       - Truck
+      #       - Ddmin
       responses: # server responses
         201:
           description: List user's profile
