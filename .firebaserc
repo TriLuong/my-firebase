@@ -1,5 +1,11 @@
 {
-  "projects": {
-    "default": "my-firebase-a2772"
+  "targets": {
+    "my-firebase-a2772": {
+      "hosting": {
+        "cms": [
+          "cms-my-firebase"
+        ]
+      }
+    }
   }
 }
