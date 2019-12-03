@@ -243,4 +243,23 @@ export async function get(req: Request, res: Response) {
   }
 }
 
-export default { all, create, update, get };
+export async function remove(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const ref = await usersCollection().doc(id);
+    const snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "User not exists");
+    }
+
+    await admin.auth().deleteUser(id);
+    await ref.delete();
+
+    return respondSuccess(res, {});
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export default { all, create, update, get, remove };
