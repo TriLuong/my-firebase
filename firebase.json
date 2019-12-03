@@ -12,6 +12,7 @@
       "npm --prefix \"$RESOURCE_DIR\" run build"
     ]
   },
+  "plugins": ["serverless-swagger-import-plugin"],
   "hosting": {
     "target": "cms",
     "public": "cms/build",
