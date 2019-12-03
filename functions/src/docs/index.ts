@@ -6,8 +6,8 @@ const router = Router();
 
 const isDev = process.env.NODE_ENV === "dev";
 const host = isDev
-  ? "http://localhost:5001/my-firebase-a2772/us-central1/main"
-  : "https://cms-my-firebase.web.app";
+  ? "localhost:5001/my-firebase-a2772/us-central1/main"
+  : "cms-my-firebase.web.app";
 
 const path = __dirname + "/*.yaml";
 

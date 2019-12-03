@@ -1,43 +1,263 @@
-openapi: 3.0.0
-info:
-  title: Sample API
-  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
-  version: 0.1.9
-servers:
-  - url: https://cms-my-firebase.firebaseapp.com/api/v1
-    description: Optional server description, e.g. Main (production) server
-  - url: https://cms-my-firebase.firebaseapp.com/api/v1
-    description: Optional server description, e.g. Internal staging server for testing
+securityDefinitions:
+  auth:
+    type: apiKey
+    in: header
+    name: Authorization
 paths:
-  /users:
-    get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
+  /api/v1/users:
+    post:
+      security:
+        - auth: []
+      tags:
+        - Users
+      summary: Create an user
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: sign up
+          description: It enables a user to create an account
+          required: false
+          schema:
+            $ref: "#/definitions/signUp"
       responses:
-        "200": # status code
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema:
-                name:
-                  type: string
-                role:
-                  type: string
-                email:
-                  type: string
-                phone:
-                  type: string
-                truck:
-                  type: boolean
-                available:
-                  type: boolean
-                notes:
-                  type: string
-                truckNumber:
-                  type: string
-                timezone:
-                  type: string
-                id:
-                  type: string
-                photoURL:
-                  type: string
+        201:
+          description: user's profile
+    get:
+      security:
+        - auth: []
+      tags:
+        - Users
+      summary: Get all users
+      produces:
+        - application/json
+      # parameters:
+      #   - in: query
+      #     name: size
+      #     description: Size of page
+      #     required: false
+      #     type: number
+      #     default: 20
+      #   - in: query
+      #     name: page
+      #     description: Page index
+      #     required: false
+      #     type: number
+      #     default: 1
+      #   - in: query
+      #     name: role
+      #     description: Role's user
+      #     required: false
+      #     type: string
+      #     enum:
+      #       - Driver
+      #       - Rep
+      #       - Truck
+      #       - Ddmin
+      responses: # server responses
+        201:
+          description: List user's profile
+  /api/v1/users/search:
+    get:
+      security:
+        - auth: []
+      tags:
+        - Users
+      summary: Search users
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: role
+          description: Role's user
+          required: true
+          type: string
+          enum:
+            - Admin
+            - Truck
+            - Driver
+            - Rep
+        - in: query
+          name: query
+          description: Key for search
+          required: true
+          type: string
+          enum:
+            - name
+            - phone
+            - email
+        - in: query
+          name: keyword
+          description: Keyword for searching
+          required: true
+          type: string
+      responses: # server responses
+        201:
+          description: List user's profile
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user's profile
+      produces:
+        - application/json
+      security:
+        - auth: []
+      parameters:
+        - name: id
+          in: path
+          description: user's id
+          required: true
+          type: string
+      responses:
+        200:
+          description: An object with a user updated user profile detail
+        401:
+          description: Unauthorized users
+    patch:
+      tags:
+        - Users
+      summary: Update user's profile
+      produces:
+        - application/json
+      security:
+        - auth: []
+      parameters:
+        - name: id
+          in: path
+          description: user's id
+          required: true
+          type: string
+        - in: body
+          name: update user
+          description: It enables a user to update user profile
+          required: false
+          schema:
+            $ref: "#/definitions/updateUser"
+      responses:
+        200:
+          description: An object with a user updated user profile detail
+        401:
+          description: Unauthorized users
+    delete:
+      tags:
+        - Users
+      summary: Delete an user
+      produces:
+        - application/json
+      security:
+        - auth: []
+      parameters:
+        - name: id
+          in: path
+          description: user's id
+          required: true
+          type: string
+      responses:
+        200:
+          description: Success
+        401:
+          description: Unauthorized users
+definitions:
+  signUp:
+    type: object
+    properties:
+      name:
+        type: string
+        default: ""
+      email:
+        type: string
+        default: ""
+      password:
+        type: string
+        default: ""
+      role:
+        type: string
+        default: ""
+        enum:
+          - Admin
+          - Truck
+          - Driver
+          - Rep
+      phone:
+        type: string
+        default: ""
+      truck:
+        type: boolean
+        default: true
+      available:
+        type: boolean
+        default: true
+      notes:
+        type: string
+        default: ""
+      truckNumber:
+        type: string
+        default: ""
+      longitude:
+        type: string
+        default: ""
+      latitude:
+        type: string
+        default: ""
+      address:
+        type: string
+        default: ""
+      deviceToken:
+        type: string
+        default: ""
+      devicePlatform:
+        type: string
+        enum:
+          - Web
+          - IOS
+          - Android
+  updateUser:
+    type: object
+    properties:
+      name:
+        type: string
+        default: ""
+      email:
+        type: string
+        default: ""
+      role:
+        type: string
+        enum:
+          - Admin
+          - Truck
+          - Driver
+          - Rep
+      phone:
+        type: string
+        default: ""
+      truck:
+        type: boolean
+        default: true
+      available:
+        type: boolean
+        default: true
+      notes:
+        type: string
+        default: ""
+      truckNumber:
+        type: string
+        default: ""
+      longitude:
+        type: string
+        default: ""
+      latitude:
+        type: string
+        default: ""
+      address:
+        type: string
+        default: ""
+      deviceToken:
+        type: string
+        default: ""
+      devicePlatform:
+        type: string
+        enum:
+          - Web
+          - IOS
+          - Android
