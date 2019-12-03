@@ -12,7 +12,6 @@ const host = isDev
 const path = __dirname + "/*.yaml";
 
 const swaggerDefinition = {
-  openAPI: "1.0.0",
   swagger: "2.0",
   info: {
     title: "API for my-firebse",
