@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { isAuthenticated } from "../common/authenticated";
+import { isAuthorized } from "../common/authorized";
 import {
   all,
   create,
@@ -9,10 +11,29 @@ import {
 
 const router = Router();
 
-router.get("/", all);
-router.post("/", create);
-router.patch("/:id", update);
-router.get("/:id", get);
-router.delete("/:id", remove);
+router.get("/", [
+  isAuthenticated,
+  isAuthorized({ hasRole: ["Admin", "Driver"] }),
+  all
+]);
+router.post("/", isAuthenticated, isAuthorized({ hasRole: ["Admin"] }), create);
+router.patch(
+  "/:id",
+  isAuthenticated,
+  isAuthorized({ hasRole: ["Admin", "Driver"] }),
+  update
+);
+router.get(
+  "/:id",
+  isAuthenticated,
+  isAuthorized({ hasRole: ["Admin", "Driver"] }),
+  get
+);
+router.delete(
+  "/:id",
+  isAuthenticated,
+  isAuthorized({ hasRole: ["Admin"] }),
+  remove
+);
 
 export default router;

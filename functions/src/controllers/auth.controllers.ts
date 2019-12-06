@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import * as admin from "firebase-admin";
 import * as httpStatusCode from "http-status-codes";
 import { IDENTITY_TOOL_KIT, WEB_API } from "../config";
 import * as request from "request";
@@ -17,16 +18,19 @@ export async function login(req: Request, res: Response) {
         },
         body: JSON.stringify(body)
       },
-      (error, response, data) => {
+      async (error, response, data) => {
         if (error || response.statusCode !== 200) {
           handleError(res, error || Error(response.statusMessage));
         }
         const json = JSON.parse(data);
+        const userRecord = await admin.auth().getUser(json.localId);
 
         const result = {
           id: json.localId,
           email: json.email,
           name: json.displayName,
+          // @ts-ignore
+          role: userRecord.customClaims && userRecord.customClaims.role,
           token: json.idToken,
           refreshToken: json.refreshToken,
           expiresIn: json.expiresIn

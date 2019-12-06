@@ -3,7 +3,7 @@ import { respondError } from "./common";
 import * as httpStatusCode from "http-status-codes";
 import { Roles } from "../models/user.model";
 
-const ADMIN_EMAILS = ["rs-legend@gmail.com"];
+const ADMIN_EMAILS = ["myfirebase@mailinator.com"];
 
 export const isAdmin = (email: string) => ADMIN_EMAILS.includes(email);
 
