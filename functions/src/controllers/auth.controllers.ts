@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { IDENTITY_TOOL_KIT, WEB_API } from "../config";
 import * as httpStatusCode from "http-status-codes";
+import { IDENTITY_TOOL_KIT, WEB_API } from "../config";
 import * as request from "request";
 import { respondSuccess, respondError, handleError } from "../common/common";
 
@@ -22,7 +22,9 @@ export async function login(req: Request, res: Response) {
           handleError(res, error || Error(response.statusMessage));
         }
         const json = JSON.parse(data);
+
         const result = {
+          id: json.localId,
           email: json.email,
           name: json.displayName,
           token: json.idToken,
