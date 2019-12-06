@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as _ from "lodash";
+import * as httpStatusCode from "http-status-codes";
 import { loadsCollection, usersCollection } from "../common/collections";
 import { respondSuccess, respondError, handleError } from "../common/common";
 import { ILoad } from "../models/load.model";
@@ -9,14 +10,14 @@ export const transformUser = async (
   ref: FirebaseFirestore.DocumentReference
 ) => {
   const snapshot = await ref.get();
-  const user = snapshot.data()!;
-  user["createdAt"] = snapshot.createTime;
-  user["updatedAt"] = snapshot.updateTime;
-  user["id"] = snapshot.id;
-  await ref.update(user);
-  user["createdAt"] = user["createdAt"].toDate();
-  user["updatedAt"] = user["updatedAt"].toDate();
-  return user;
+  const load = snapshot.data()!;
+  load["createdAt"] = snapshot.createTime;
+  load["updatedAt"] = snapshot.updateTime;
+  load["appointmentTime"] = load.appointmentTime.toDate();
+  await ref.update(load);
+  load["createdAt"] = load["createdAt"].toDate();
+  load["updatedAt"] = load["updatedAt"].toDate();
+  return load;
 };
 
 export const transformUserToEndUser = (
@@ -298,3 +299,103 @@ export async function create(req: Request, res: Response) {
     return handleError(res, err);
   }
 }
+
+export async function update(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    const ref = loadsCollection().doc(id);
+
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "Load not exists");
+    }
+
+    const {
+      load,
+      pickUp,
+      notes,
+      release,
+      appointment,
+      reservation,
+      returnRail,
+      yarnPull,
+      loadedRail,
+      appointmentTime,
+      driverId,
+      repId,
+      status,
+      customer,
+      pickUpLocation = "",
+      dropOffLocation = "",
+      transitMode
+    } = req.body;
+
+    const user: ILoad = {
+      load,
+      pickUp,
+      notes,
+      release,
+      appointment,
+      reservation,
+      returnRail,
+      yarnPull,
+      loadedRail,
+      appointmentTime,
+      driverId,
+      repId,
+      status,
+      customer,
+      pickUpLocation,
+      dropOffLocation,
+      transitMode
+    };
+
+    // @ts-ignore
+    Object.keys(user).forEach(k => _.isUndefined(user[k]) && delete user[k]);
+
+    await ref.update(user);
+
+    const updatedUser = await transformUser(ref);
+
+    return respondSuccess(res, updatedUser);
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export async function get(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const ref = loadsCollection().doc(id);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "Load not exists");
+    }
+    const users = await transformUserToEndUser(snapshot);
+    return respondSuccess(res, users);
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export async function remove(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const ref = await loadsCollection().doc(id);
+    const snapshot = await ref.get();
+
+    if (!snapshot.exists) {
+      return respondError(res, httpStatusCode.NOT_FOUND, "Load not exists");
+    }
+
+    await ref.delete();
+
+    return respondSuccess(res, {});
+  } catch (err) {
+    return handleError(res, err);
+  }
+}
+
+export default { all, create, update, get, remove };
